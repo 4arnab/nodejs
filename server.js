@@ -1,5 +1,12 @@
 const app = require('./app');
 
+// Handling UNCAUGHT EXCEPTION
+process.on('uncaughtException', (err) => {
+  console.log('uncaughtException'.toUpperCase(), 'Shutting down...');
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
 // STARTING APPLICATION
 const PORT = 3000;
 const server = app.listen(PORT, () =>
