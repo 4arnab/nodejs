@@ -36,6 +36,7 @@ if (process.env.NODE_ENV === 'DEVELOPMENT') {
 app.use('/api/v1/tours/', tourRouter);
 app.use('/api/v1/users/', userRouter);
 
+// UNHANDLED ROUTES
 app.all('*', (req, res, next) => {
   next(errorHandler('Not defined Route', 'fail', 404));
 });
