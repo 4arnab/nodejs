@@ -3,28 +3,17 @@ const { errorHandler } = require('../utils/appError');
 const bcrypt = require('bcryptjs');
 const { prisma } = require('../utils/prismaClient');
 
-const users = [
-  {
-    id: 1,
-    name: 'ahmed',
-    email: 'ahmed@gmail.com',
-    password: 'ahmed',
-    isAdmin: true,
-  },
-  {
-    id: 2,
-    name: 'mohamed',
-    email: 'mohamed@gmail.com',
-    password: 'mohamed',
-    isAdmin: false,
-  },
-];
-
 exports.getAllUsers = async (req, res, next) => {
-  const usersTwo = await prisma.user.findMany();
+  const users = await prisma.user.findMany({
+    select: {
+      Email: true,
+      userName: true,
+      Role: true,
+    },
+  });
 
   res.status(200).json({
-    usersTwo,
+    users,
     status: 'Success',
   });
 };
@@ -47,20 +36,34 @@ exports.login = (req, res, next) => {
   // 2) CHECK I
 };
 
-exports.createUser = async (req, res) => {
-  const newUser = req.body;
+exports.createUser = async (req, res, next) => {
+  const { userName, email } = req.body;
+  if (!userName || !email) {
+    return next(errorHandler('Please provide valid data', 'fail', 400));
+  }
 
-  const salt = await bcrypt.genSalt(12);
-  const hashedPassword = await bcrypt.hash(newUser.password, salt);
+  const newUser = await prisma.user.create({
+    data: {
+      Email: email,
+      userName,
+    },
+    select: {
+      Email: true,
+      userName: true,
+    },
+  });
+  const token = generateToken(newUser.Id);
 
-  newUser.password = hashedPassword;
-  users.push(newUser);
-
-  const token = generateToken(newUser.id);
   res.status(200).json({
     newUser,
     token,
   });
+
+  // const salt = await bcrypt.genSalt(12);
+  // const hashedPassword = await bcrypt.hash(newUser.password, salt);
+
+  // newUser.password = hashedPassword;
+  // users.push(newUser);
 };
 
 exports.updateUser = () => {};
