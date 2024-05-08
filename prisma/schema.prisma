@@ -1,0 +1,79 @@
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  Id       Int      @id @unique @default(autoincrement()) // THIS IS A DEFAULT VALUE AND IT WILL BE AUTO INCREMENT
+  userName String
+  Email    String   @unique
+  //Role     String? // this column can be null
+  Role     Role?    @default(USER) // this is pre-defined data and we cannot enter any other value then the defined one
+  // @@unique([userName, Email]) <-- this will be unique with the compination of these two columns
+  // @@index([id,Email])
+  // Profile
+  Profile  Profile?
+  Post     Post[] // ONE TO MANY RELATIONSHIP
+
+  @@map("users") // Map attribute we can set and change the model and model column names
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Profile {
+  Id        Int      @id @default(autoincrement())
+  Bio       String?
+  UserId    Int      @unique
+  User      user     @relation(fields: [UserId], references: [Id])
+  createdAt DateTime @default(now())
+  UpdatedAt DateTime @updatedAt
+}
+
+model Post {
+  Id          Int        @id @default(autoincrement())
+  authorId    Int
+  Title       String
+  isPublished Boolean
+  CreatedAt   DateTime   @default(now())
+  UpdatedAt   DateTime   @updatedAt
+  auther      user       @relation(fields: [authorId], references: [Id])
+  Category    Category[]
+}
+
+model Category {
+  Id    Int    @id @default(autoincrement())
+  Name  String
+  posts Post[]
+}
+
+// model Post{
+
+// }
+
+// model UserTwo {
+//   FirstName String
+//   LastName  String
+
+//   profile profileTwo?
+//   @@id([FirstName, LastName])
+// }
+
+// model profileTwo {
+//   id            Int    @id
+//   userFirstName String
+//   userLastName  String
+
+//   user UserTwo @relation(fields: [userFirstName, userLastName], references: [FirstName, LastName])
+
+//   @@unique([userFirstName, userLastName])
+// }

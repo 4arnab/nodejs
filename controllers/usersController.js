@@ -1,6 +1,7 @@
 const { generateToken } = require('../auth/auth');
 const { errorHandler } = require('../utils/appError');
 const bcrypt = require('bcryptjs');
+const { prisma } = require('../utils/prismaClient');
 
 const users = [
   {
@@ -18,7 +19,15 @@ const users = [
     isAdmin: false,
   },
 ];
-exports.getAllUsers = () => {};
+
+exports.getAllUsers = async (req, res, next) => {
+  const usersTwo = await prisma.user.findMany();
+
+  res.status(200).json({
+    usersTwo,
+    status: 'Success',
+  });
+};
 exports.getUser = () => {};
 
 exports.login = (req, res, next) => {
