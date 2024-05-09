@@ -14,6 +14,7 @@ model user {
   Id       Int      @id @unique @default(autoincrement()) // THIS IS A DEFAULT VALUE AND IT WILL BE AUTO INCREMENT
   userName String
   Email    String   @unique
+  password String   @default("NO-PASSWORD")
   //Role     String? // this column can be null
   Role     Role?    @default(USER) // this is pre-defined data and we cannot enter any other value then the defined one
   // @@unique([userName, Email]) <-- this will be unique with the compination of these two columns
